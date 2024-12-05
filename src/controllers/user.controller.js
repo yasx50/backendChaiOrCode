@@ -7,7 +7,7 @@ import {uploadOnCloudinary} from "../utils/cloudinary.js"
 
 const registerUser = asyncHandeler(async (req,res)=>{
     const {fullname,email,username,password} = req.body
-    console.log('email',email);
+    
 
     if (
         [fullname,email,username,password].some((field)=>field?.trim()==="")
@@ -16,16 +16,21 @@ const registerUser = asyncHandeler(async (req,res)=>{
         
     }
 
-    const existedUser = User.findOne({
+    const existedUser =await User.findOne({
         $or:[{ username },{ email }]
     })
     
     if (existedUser) {
         throw new apiError(409,"User with email or username already exists "); 
     }
-
+    // console.log('the file body',req.files);
+    
     const avtarLocalPath = req.files?.avtar[0]?.path;
-    const coverimageLocalPath = req.files?.coverImage[0]?.path;
+    // const coverimageLocalPath = req.files?.coverImage[0]?.path;
+    let coverimageLocalPath;
+    if (req.files && Array.isArray(req.files.coverImage)&& req.files.coverImage.length>0) {
+        coverimageLocalPath = req.files.coverImage[0].path
+    }
 
     if (!avtarLocalPath) {
         throw new apiError(400,"Avtar file is required !")
@@ -42,7 +47,8 @@ const registerUser = asyncHandeler(async (req,res)=>{
         avtar:avtar.url,
         coverImage:coverImage?.url||"",
         password,
-        username
+        username,
+        email
     })
 
     const createdUser = await User.findById(user._id).select(

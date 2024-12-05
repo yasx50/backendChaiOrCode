@@ -15,7 +15,10 @@ const uploadOnCloudinary = async (loacalFilePath) => {
       resource_type: "auto",
     });
     // file has been upload successfully
-    console.log("file is upoaded on clodinary !!", response.url);
+    // console.log("file is upoaded on clodinary !!", response.url);
+    fs.unlinkSync(loacalFilePath); // ye file ko remove karega
+    // console.log('the cloudinary response',response);
+    
     return response;
   } catch (error) {
     fs.unlinkSync(loacalFilePath); // ye file ko remove karega
